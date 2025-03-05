@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    username: modulith
+    password: modulith
+    url: jdbc:postgresql://localhost:5432/example_modulith
+  jpa:
+    hibernate:
+      ddl-auto: update
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: never
+
+  modulith:
+    republish-outstanding-events-on-restart: false
+
+delete:
+  event:
+    duration: 5000
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+server:
+  port: 8081
