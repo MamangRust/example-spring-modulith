@@ -21,7 +21,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-
 public class AuthTokenFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
@@ -33,8 +32,14 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain)
-            throws ServletException, IOException {
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
+        String path = request.getServletPath();
+
+        if (path.startsWith("/api/auth/login") || path.startsWith("/api/auth/register")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
             Optional<String> accessToken = parseJwt(request);
             if (accessToken.isPresent() && jwtProvider.validateAccessToken(accessToken.get())) {

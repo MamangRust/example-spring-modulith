@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Email Verification</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #3498db;
+        }
+
+        p {
+            color: #555555;
+            line-height: 1.6;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        a:hover {
+            background-color: #007bb5;
+        }
+
+        footer {
+            margin-top: 20px;
+            color: #888888;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Email Verification</h2>
+        <p>Dear User,</p>
+        <p>
+            Thank you for registering with Booking Hotel. To verify your email, please click the link below:
+            <a th:href="'http://localhost:8080/api/auth/verify?token=' + ${token}">Verify Email</a>
+        </p>
+        <p>If you didn't register with Booking Hotel, please ignore this email.</p>
+        <p>Best regards,<br />Booking Hotel Team</p>
+    </div>
+    <footer>
+        &copy; 2024 Booking Hotel. All rights reserved.
+    </footer>
+</body>
+
+</html>

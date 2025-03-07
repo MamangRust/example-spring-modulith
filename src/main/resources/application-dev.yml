@@ -2,7 +2,7 @@ spring:
   datasource:
     username: modulith
     password: modulith
-    url: jdbc:postgresql://localhost:5432/example_modulith
+    url: jdbc:postgresql://postgres:5432/example_modulith
   jpa:
     hibernate:
       ddl-auto: update
@@ -10,6 +10,26 @@ spring:
   sql:
     init:
       mode: never
+  mail:
+    host: smtp.ethereal.email
+    port: 587
+    username: jeanette.stanton@ethereal.email
+    password: vyJGSAu7NuTyzNQVPP
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls.enable: true
+          ssl.trust: smtp.ethereal.email
+
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 2MB
+      enabled: true
+      location: ${java.io.tmpdir}
+  mvc:
+    static-path-pattern: /static/
 
   modulith:
     republish-outstanding-events-on-restart: false
@@ -19,10 +39,31 @@ delete:
     duration: 5000
 
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'
-server:
-  port: 8081
+
+springjwt:
+  app:
+    jwtSecret: 0a5371c29751174b5601acb50153c0e66e4f6d6525ed08485e63d94a70985c31
+    jwtExpirationMs: 86400000
+    jwtRefreshExpirationMs: 86400000
+
+
+app:
+  file:
+    storage:
+      mapping: /static
+
+
+springdoc:
+  api-docs:
+    path: /api-docs
+
+
+booking:
+  openapi:
+    dev-url: http://localhost:8080
+    prod-url: https://booking.sanedge.com
+
+
+logging:
+  level:
+    org.springframework.security: DEBUG

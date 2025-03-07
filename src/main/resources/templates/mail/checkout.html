@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check-Out Confirmation</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #e74c3c;
+        }
+
+        p {
+            color: #555555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #e74c3c;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        a:hover {
+            background-color: #c0392b;
+        }
+
+        .footer {
+            margin-top: 20px;
+            color: #888888;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Check-Out Confirmation</h2>
+        <p>Dear guest,</p>
+        <p>Your check-out for order <span th:text="${orderId}"></span> is confirmed. Your check-out time is on <span
+                th:text="${formattedDate}"></span>.</p>
+        <p>We hope you enjoyed your stay with us. Thank you for choosing our service.</p>
+        <p>Best regards,<br>Hotel Management Team</p>
+
+    </div>
+</body>
+
+</html>

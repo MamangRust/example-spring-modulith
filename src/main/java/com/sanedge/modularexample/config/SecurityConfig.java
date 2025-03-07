@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -21,6 +22,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.sanedge.modularexample.security.AuthAccessDenied;
 import com.sanedge.modularexample.security.AuthTokenEntryPoint;
 import com.sanedge.modularexample.security.AuthTokenFilter;
 import com.sanedge.modularexample.user.service.UserDetailImplService;
@@ -34,10 +36,22 @@ public class SecurityConfig {
     @Autowired
     private AuthTokenEntryPoint unauthorizedHandler;
 
+    @Autowired
+    private AuthAccessDenied authAccessDenied;
+
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter();
     }
+
+    private static final String[] PUBLIC_READ_ENDPOINTS = {
+            "/api/test",
+            "/static"
+    };
+
+    private static final String[] PUBLIC_WRITE_ENDPOINTS = {
+            "/api/auth/login", "/api/auth/register"
+    };
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
@@ -66,13 +80,16 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(
                         sessionManager -> sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(unauthorizedHandler))
+
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/test").permitAll()
-                        .requestMatchers("/static").permitAll()
+                        .requestMatchers(HttpMethod.POST, PUBLIC_WRITE_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.GET, PUBLIC_READ_ENDPOINTS).permitAll()
                         .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider())
+                .anonymous(AbstractHttpConfigurer::disable)
+                .exceptionHandling(handler -> handler
+                        .accessDeniedHandler(authAccessDenied)
+                        .authenticationEntryPoint(unauthorizedHandler))
                 .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

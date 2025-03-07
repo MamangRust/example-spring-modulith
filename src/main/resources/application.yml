@@ -13,8 +13,8 @@ spring:
   mail:
     host: smtp.ethereal.email
     port: 587
-    username: hal.murphy@ethereal.email
-    password: kXTc3fXhfVMDy4dsch
+    username: jeanette.stanton@ethereal.email
+    password: vyJGSAu7NuTyzNQVPP
     properties:
       mail:
         smtp:
