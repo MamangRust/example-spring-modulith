@@ -1,7 +1,10 @@
 package com.sanedge.modularexample.config;
 
+import com.sanedge.modularexample.security.AuthAccessDenied;
+import com.sanedge.modularexample.security.AuthTokenEntryPoint;
+import com.sanedge.modularexample.security.AuthTokenFilter;
+import com.sanedge.modularexample.user.service.UserDetailImplService;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,14 +25,10 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.sanedge.modularexample.security.AuthAccessDenied;
-import com.sanedge.modularexample.security.AuthTokenEntryPoint;
-import com.sanedge.modularexample.security.AuthTokenFilter;
-import com.sanedge.modularexample.user.service.UserDetailImplService;
-
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
+
     @Autowired
     UserDetailImplService userService;
 
@@ -45,17 +44,21 @@ public class SecurityConfig {
     }
 
     private static final String[] PUBLIC_READ_ENDPOINTS = {
-            "/api/test",
-            "/static"
+        "/api/test",
+        "/static",
     };
 
     private static final String[] PUBLIC_WRITE_ENDPOINTS = {
-            "/api/auth/login", "/api/auth/register"
+        "/api/auth/login",
+        "/api/auth/register",
+        "/api/auth/reset",
+        "/api/auth/forgot",
     };
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        DaoAuthenticationProvider authProvider =
+            new DaoAuthenticationProvider();
 
         authProvider.setUserDetailsService(userService);
         authProvider.setPasswordEncoder(passwordEncoder());
@@ -64,7 +67,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+    public AuthenticationManager authenticationManager(
+        AuthenticationConfiguration authConfig
+    ) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
@@ -74,24 +79,37 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http)
+        throws Exception {
         return http
-                .cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(
-                        sessionManager -> sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                .authorizeHttpRequests(requests -> requests
-                        .requestMatchers(HttpMethod.POST, PUBLIC_WRITE_ENDPOINTS).permitAll()
-                        .requestMatchers(HttpMethod.GET, PUBLIC_READ_ENDPOINTS).permitAll()
-                        .anyRequest().authenticated())
-                .authenticationProvider(authenticationProvider())
-                .anonymous(AbstractHttpConfigurer::disable)
-                .exceptionHandling(handler -> handler
-                        .accessDeniedHandler(authAccessDenied)
-                        .authenticationEntryPoint(unauthorizedHandler))
-                .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
-                .build();
+            .cors(Customizer.withDefaults())
+            .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(sessionManager ->
+                sessionManager.sessionCreationPolicy(
+                    SessionCreationPolicy.STATELESS
+                )
+            )
+            .authorizeHttpRequests(requests ->
+                requests
+                    .requestMatchers(HttpMethod.POST, PUBLIC_WRITE_ENDPOINTS)
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET, PUBLIC_READ_ENDPOINTS)
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated()
+            )
+            .authenticationProvider(authenticationProvider())
+            .anonymous(AbstractHttpConfigurer::disable)
+            .exceptionHandling(handler ->
+                handler
+                    .accessDeniedHandler(authAccessDenied)
+                    .authenticationEntryPoint(unauthorizedHandler)
+            )
+            .addFilterBefore(
+                authenticationJwtTokenFilter(),
+                UsernamePasswordAuthenticationFilter.class
+            )
+            .build();
     }
 
     @Bean
@@ -99,7 +117,9 @@ public class SecurityConfig {
         var configuration = new CorsConfiguration();
 
         configuration.setAllowedOriginPatterns(List.of("*"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        configuration.setAllowedMethods(
+            List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+        );
         configuration.setAllowedHeaders(List.of("*"));
 
         var source = new UrlBasedCorsConfigurationSource();
@@ -107,5 +127,4 @@ public class SecurityConfig {
 
         return source;
     }
-
 }

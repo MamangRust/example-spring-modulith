@@ -1,8 +1,12 @@
 package com.sanedge.modularexample.security;
 
+import com.sanedge.modularexample.user.service.UserDetailImplService;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,15 +18,11 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.sanedge.modularexample.user.service.UserDetailImplService;
-
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 public class AuthTokenFilter extends OncePerRequestFilter {
-    private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(
+        AuthTokenFilter.class
+    );
 
     @Autowired
     JwtProvider jwtProvider;
@@ -31,27 +31,37 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     private UserDetailImplService userService;
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+        @NonNull HttpServletRequest request,
+        @NonNull HttpServletResponse response,
+        @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
         String path = request.getServletPath();
-
-        if (path.startsWith("/api/auth/login") || path.startsWith("/api/auth/register")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         try {
             Optional<String> accessToken = parseJwt(request);
-            if (accessToken.isPresent() && jwtProvider.validateAccessToken(accessToken.get())) {
-                String username = jwtProvider.getUsernameAccessToken(accessToken.get());
-                UserDetails userDetails = userService.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+            if (
+                accessToken.isPresent() &&
+                jwtProvider.validateAccessToken(accessToken.get())
+            ) {
+                String username = jwtProvider.getUsernameAccessToken(
+                    accessToken.get()
+                );
+                UserDetails userDetails = userService.loadUserByUsername(
+                    username
+                );
+                UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
-                        userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        userDetails.getAuthorities()
+                    );
+                authentication.setDetails(
+                    new WebAuthenticationDetailsSource().buildDetails(request)
+                );
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                SecurityContextHolder.getContext()
+                    .setAuthentication(authentication);
             }
         } catch (Exception e) {
             logger.error("Cannot set user authentication: {}", e);
@@ -62,7 +72,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     private Optional<String> parseJwt(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
-        if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
+        if (
+            StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")
+        ) {
             return Optional.of(authHeader.replace("Bearer ", ""));
         }
         return Optional.empty();
