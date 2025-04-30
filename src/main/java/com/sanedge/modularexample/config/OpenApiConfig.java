@@ -10,6 +10,8 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
@@ -19,6 +21,8 @@ public class OpenApiConfig {
 
     @Value("${booking.openapi.prod-url}")
     private String prodUrl;
+
+    private static final String SECURITY_SCHEME_NAME = "Bearer Authentication";
 
     @Bean
     public OpenAPI myOpenAPI() {
@@ -31,8 +35,8 @@ public class OpenApiConfig {
         prodServer.setDescription("Server URL in Production environment");
 
         Contact contact = new Contact();
-        contact.setEmail("renaldyhidayatt.gmail.com");
-        contact.setName("renaldy hidayat");
+        contact.setEmail("renaldyhidayatt@gmail.com");
+        contact.setName("Renaldy Hidayat");
         contact.setUrl("https://booking.sanedge.com");
 
         License mitLicense = new License().name("MIT License").url("https://choosealicense.com/licenses/mit/");
@@ -42,9 +46,23 @@ public class OpenApiConfig {
                 .version("1.0")
                 .contact(contact)
                 .description("Booking Hotel API Documentation")
-                .termsOfService("https://booking.sanedge.com")
+                .termsOfService("https://booking.sanedge.com/terms")
                 .license(mitLicense);
 
-        return new OpenAPI().info(info).servers(List.of(devServer, prodServer));
+        return new OpenAPI()
+                .info(info)
+                .servers(List.of(devServer, prodServer))
+                .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
+                .schemaRequirement(SECURITY_SCHEME_NAME, createSecurityScheme());
+    }
+
+    private SecurityScheme createSecurityScheme() {
+        return new SecurityScheme()
+                .name(SECURITY_SCHEME_NAME)
+                .type(SecurityScheme.Type.HTTP)
+                .scheme("bearer")
+                .bearerFormat("JWT")
+                .description("Enter your JWT token in the format: Bearer <token>")
+                .in(SecurityScheme.In.HEADER);
     }
 }

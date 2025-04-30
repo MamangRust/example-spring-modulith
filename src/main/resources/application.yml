@@ -54,8 +54,10 @@ app:
 
 
 springdoc:
-  api-docs:
+  swagger-ui:
     path: /api-docs
+  api-docs:
+    path: /api-docs/json
 
 
 booking:

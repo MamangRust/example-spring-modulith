@@ -1,23 +1,23 @@
-# Getting Started
+## Booking Hotel with Modular Spring boot
 
-### Reference Documentation
-For further reference, please consider the following sections:
+### Swagger
 
-* [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
-* [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/3.4.3/maven-plugin)
-* [Create an OCI image](https://docs.spring.io/spring-boot/3.4.3/maven-plugin/build-image.html)
-* [Validation](https://docs.spring.io/spring-boot/3.4.3/reference/io/validation.html)
-* [Spring Modulith](https://docs.spring.io/spring-modulith/reference/)
+<img src="./images/swagger.png" alt="myswagger" />
 
-### Guides
-The following guides illustrate how to use some features concretely:
 
-* [Validation](https://spring.io/guides/gs/validating-form-input/)
 
-### Maven Parent overrides
 
-Due to Maven's design, elements are inherited from the parent POM to the project POM.
-While most of the inheritance is fine, it also inherits unwanted elements like `<license>` and `<developers>` from the parent.
-To prevent this, the project POM contains empty overrides for these elements.
-If you manually switch to a different parent and actually want the inheritance, you need to remove those overrides.
 
+### How use use
+
+#### In Local
+
+```sh
+./mvnw spring-boot:run
+```
+
+### In Docker
+
+```sh
+docker-compose up -d build
+```

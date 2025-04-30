@@ -4,11 +4,12 @@ import com.sanedge.modularexample.security.AuthAccessDenied;
 import com.sanedge.modularexample.security.AuthTokenEntryPoint;
 import com.sanedge.modularexample.security.AuthTokenFilter;
 import com.sanedge.modularexample.user.service.UserDetailImplService;
+
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -43,33 +44,30 @@ public class SecurityConfig {
         return new AuthTokenFilter();
     }
 
-    private static final String[] PUBLIC_READ_ENDPOINTS = {
+    private static final String[] PUBLIC_ENDPOINTS = {
         "/api/test",
-        "/static",
-    };
-
-    private static final String[] PUBLIC_WRITE_ENDPOINTS = {
+        "/static/**",
         "/api/auth/login",
         "/api/auth/register",
         "/api/auth/reset",
         "/api/auth/forgot",
+        "/v3/api-docs/**",
+        "/swagger-ui/**",
+        "/swagger-ui.html",
+        "/api-docs/**"
     };
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider =
-            new DaoAuthenticationProvider();
-
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userService);
         authProvider.setPasswordEncoder(passwordEncoder());
-
         return authProvider;
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(
-        AuthenticationConfiguration authConfig
-    ) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig)
+            throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
@@ -80,23 +78,17 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)
-        throws Exception {
+            throws Exception {
         return http
             .cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(sessionManager ->
-                sessionManager.sessionCreationPolicy(
-                    SessionCreationPolicy.STATELESS
-                )
+                sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-            .authorizeHttpRequests(requests ->
-                requests
-                    .requestMatchers(HttpMethod.POST, PUBLIC_WRITE_ENDPOINTS)
-                    .permitAll()
-                    .requestMatchers(HttpMethod.GET, PUBLIC_READ_ENDPOINTS)
-                    .permitAll()
-                    .anyRequest()
-                    .authenticated()
+            .authorizeHttpRequests(req ->
+                req
+                    .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                    .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider())
             .anonymous(AbstractHttpConfigurer::disable)
@@ -115,11 +107,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfiguration() {
         var configuration = new CorsConfiguration();
-
         configuration.setAllowedOriginPatterns(List.of("*"));
-        configuration.setAllowedMethods(
-            List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-        );
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
 
         var source = new UrlBasedCorsConfigurationSource();

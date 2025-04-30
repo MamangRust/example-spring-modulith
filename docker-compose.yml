@@ -16,7 +16,7 @@ services:
 
   modulith-service:
     container_name: modulith-service
-    image: modulith:1.0
+    image: modulith:1.1
     ports:
       - "8080:8080"
     environment:
